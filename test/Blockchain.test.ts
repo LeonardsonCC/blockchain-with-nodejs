@@ -1,6 +1,5 @@
 import { expect } from "chai";
 import Blockchain from "../src/Blockchain";
-import Block from "../src/Block";
 
 describe("Blockchain test suite", function () {
   it("should be a valid blockchain", function () {
