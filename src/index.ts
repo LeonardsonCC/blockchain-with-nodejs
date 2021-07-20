@@ -12,6 +12,6 @@ coin.addNewBlock({
   amount: 100,
 });
 
-coin.blockchain[0].data.amount = 999;
+coin.ledger[0].data.amount = 999;
 console.log(coin.debug());
 console.log("Chain is valid: " + coin.checkChainValidity());

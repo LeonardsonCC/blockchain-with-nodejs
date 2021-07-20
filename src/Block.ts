@@ -6,7 +6,7 @@ export interface BlockData {
   amount: number;
 }
 
-class CryptoBlock {
+class Block {
   private index: number;
   public timestamp: number;
   public data: BlockData;
@@ -48,4 +48,4 @@ class CryptoBlock {
   }
 }
 
-export default CryptoBlock;
+export default Block;

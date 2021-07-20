@@ -1,11 +1,11 @@
 import Block, { BlockData } from "./Block";
 
 class Blockchain {
-  public blockchain: Block[];
+  public ledger: Block[];
   public difficulty: number = 1;
 
   constructor() {
-    this.blockchain = [this.startGenesisBlock()];
+    this.ledger = [this.startGenesisBlock()];
   }
 
   startGenesisBlock() {
@@ -17,21 +17,21 @@ class Blockchain {
   }
 
   obtainLatestBlock() {
-    return this.blockchain[this.blockchain.length - 1] as Block;
+    return this.ledger[this.ledger.length - 1] as Block;
   }
 
   addNewBlock(data: BlockData) {
-    const index = this.blockchain.length;
+    const index = this.ledger.length;
     const newBlock = new Block(index, new Date().getTime(), data);
     newBlock.precedingHash = this.obtainLatestBlock().hash;
     newBlock.proofOfWork(this.difficulty);
-    this.blockchain.push(newBlock);
+    this.ledger.push(newBlock);
   }
 
   checkChainValidity() {
-    for (let i = 1; i < this.blockchain.length; i++) {
-      const currentBlock = this.blockchain[i];
-      const precedingBlock = this.blockchain[i - 1];
+    for (let i = 1; i < this.ledger.length; i++) {
+      const currentBlock = this.ledger[i];
+      const precedingBlock = this.ledger[i - 1];
 
       if (currentBlock.hash !== currentBlock.computeHash()) {
         return false;
