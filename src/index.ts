@@ -1,4 +1,3 @@
-import CryptoBlock from "./Block";
 import CryptoBlockchain from "./Blockchain";
 
 let coin = new CryptoBlockchain();
