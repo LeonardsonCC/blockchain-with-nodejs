@@ -12,7 +12,7 @@ class Blockchain {
     return new Block(1, new Date().getTime(), {
       sender: "Leonardson",
       receiver: "Leonardson",
-      amount: 100,
+      amount: 0,
     });
   }
 
