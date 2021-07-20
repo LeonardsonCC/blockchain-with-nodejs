@@ -1,7 +1,7 @@
 import Block, { BlockData } from "./Block";
 
 class Blockchain {
-  public blockchain: [Block];
+  public blockchain: Block[];
   public difficulty: number = 1;
 
   constructor() {
@@ -39,6 +39,10 @@ class Blockchain {
       if (currentBlock.precedingHash !== precedingBlock.hash) return false;
     }
     return true;
+  }
+
+  debug() {
+    return JSON.stringify(this, null, 4);
   }
 }
 
