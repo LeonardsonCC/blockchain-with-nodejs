@@ -3,39 +3,39 @@ import Blockchain from "../src/Blockchain";
 
 describe("Blockchain test suite", function () {
   it("should be a valid blockchain", function () {
-    const coin = new Blockchain();
+    const blockchain = new Blockchain();
 
-    coin.addNewBlock({
+    blockchain.addNewBlock({
       sender: "Test 1",
       receiver: "Test 2",
       amount: 50,
     });
-    coin.addNewBlock({
+    blockchain.addNewBlock({
       sender: "Test 2",
       receiver: "Test 3",
       amount: 20,
     });
 
-    expect(coin.checkChainValidity()).to.be.true;
+    expect(blockchain.checkChainValidity()).to.be.true;
   });
 
   it("should be an invalid blockchain", function () {
-    const coin = new Blockchain();
+    const blockchain = new Blockchain();
 
-    coin.addNewBlock({
+    blockchain.addNewBlock({
       sender: "Test 1",
       receiver: "Test 2",
       amount: 50,
     });
-    coin.addNewBlock({
+    blockchain.addNewBlock({
       sender: "Test 2",
       receiver: "Test 3",
       amount: 20,
     });
 
     // Hacking blockchain
-    coin.blockchain[0].data.amount = 999;
+    blockchain.blockchain[0].data.amount = 999;
 
-    expect(coin.checkChainValidity()).to.be.false;
+    expect(blockchain.checkChainValidity()).to.be.false;
   });
 });
