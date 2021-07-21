@@ -1,4 +1,3 @@
-import { expect } from "chai";
 import Blockchain from "../src/Blockchain";
 
 describe("Blockchain test suite", function () {
@@ -16,7 +15,7 @@ describe("Blockchain test suite", function () {
       amount: 20,
     });
 
-    expect(ledger.checkChainValidity()).to.be.true;
+    expect(ledger.checkChainValidity()).toBe(true);
   });
 
   it("should be an invalid ledger", function () {
@@ -36,25 +35,25 @@ describe("Blockchain test suite", function () {
     // Hacking ledger
     ledger.ledger[1].data.amount = 9999;
 
-    expect(ledger.checkChainValidity()).to.be.false;
+    expect(ledger.checkChainValidity()).toBe(false);
   });
 
   it("should add a new block in ledger", function () {
     const ledger = new Blockchain();
-    expect(ledger.ledger.length).to.equals(1);
+    expect(ledger.ledger.length).toBe(1);
 
     ledger.addNewBlock({
       sender: "Test 1",
       receiver: "Test 2",
       amount: 50,
     });
-    expect(ledger.ledger.length).to.equals(2);
+    expect(ledger.ledger.length).toBe(2);
   });
 
   it("should return latest block of ledger", function () {
     const ledger = new Blockchain();
     let latestBlock = ledger.obtainLatestBlock();
-    expect(latestBlock.data.sender).to.equals("Leonardson");
-    expect(latestBlock.data.receiver).to.equals("Leonardson");
+    expect(latestBlock.data.sender).toBe("Leonardson");
+    expect(latestBlock.data.receiver).toBe("Leonardson");
   });
 });
