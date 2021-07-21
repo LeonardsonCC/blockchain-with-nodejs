@@ -78,5 +78,22 @@ describe("Blockchain test suite", function () {
       expect(latestBlock.data.sender).toBe("Test 1");
       expect(latestBlock.data.receiver).toBe("Test 2");
     });
+
+    it("should check wich is the longer ledger", () => {
+      const ledger = new Blockchain();
+      const newLedger = new Blockchain(true);
+
+      expect(ledger.isChainLonger(newLedger.ledger)).toBe(true);
+    });
+
+    it("should replace chain with the longer one", () => {
+      const ledger = new Blockchain();
+      const newLedger = new Blockchain(true);
+
+      expect(ledger.ledger.length).toBe(1);
+      ledger.replaceChain(newLedger.ledger);
+
+      expect(ledger.ledger.length).toBeGreaterThan(1);
+    });
   });
 });

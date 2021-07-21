@@ -52,10 +52,11 @@ class Blockchain {
     if (this.checkChainValidity()) this.saveChain();
   }
 
-  checkChainValidity() {
-    for (let i = 1; i < this.ledger.length; i++) {
-      const currentBlock = this.ledger[i];
-      const precedingBlock = this.ledger[i - 1];
+  checkChainValidity(newLedger: Block[] = this.ledger) {
+    const ledger = newLedger;
+    for (let i = 1; i < ledger.length; i++) {
+      const currentBlock = ledger[i];
+      const precedingBlock = ledger[i - 1];
 
       if (currentBlock.hash !== currentBlock.computeHash()) {
         return false;
@@ -68,6 +69,19 @@ class Blockchain {
   saveChain() {
     if (this.useStoredLedger) {
       writeFileSync(filePath, this.toString());
+    }
+  }
+
+  isChainLonger(newLedger: Block[]) {
+    return newLedger.length > this.ledger.length;
+  }
+
+  replaceChain(newLedger: Block[]) {
+    if (this.checkChainValidity(newLedger) && this.isChainLonger(newLedger)) {
+      this.ledger = newLedger;
+      this.saveChain();
+    } else {
+      throw new Error("Error: Invalid chain");
     }
   }
 
