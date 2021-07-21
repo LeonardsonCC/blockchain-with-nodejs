@@ -2,7 +2,8 @@ import { readFileSync, writeFileSync } from "fs";
 import { join } from "path";
 import Block, { BlockData } from "./Block";
 
-const filePath = join(__dirname, "../tmp/chain");
+let filePath = join(__dirname, "../tmp/chain");
+export const setFilePath = (newPath: string) => (filePath = newPath);
 
 class Blockchain {
   public ledger: Block[];
@@ -17,16 +18,12 @@ class Blockchain {
       } else {
         const oldLedger = JSON.parse(readFileSync(filePath).toString());
         this.ledger = oldLedger.ledger.map((block: Block) => {
-          const newBlock = new Block(
-            block.index,
-            block.timestamp,
-            block.data,
-            block.precedingHash
+          const newBlock = Object.create(
+            Block.prototype,
+            Object.getOwnPropertyDescriptors(block)
           );
-          newBlock.nonce = block.nonce;
           return newBlock;
         });
-        this.difficulty = this.difficulty;
       }
     } catch (error) {
       this.ledger = [this.startGenesisBlock()];
@@ -70,13 +67,16 @@ class Blockchain {
 
   saveChain() {
     if (this.useStoredLedger) {
-      console.log("saving...");
       writeFileSync(filePath, this.toString());
     }
   }
 
   toString() {
-    return JSON.stringify(this, null, 4);
+    return JSON.stringify(
+      Object.assign({}, this, { useStoredLedger: undefined }),
+      null,
+      4
+    );
   }
 }
 

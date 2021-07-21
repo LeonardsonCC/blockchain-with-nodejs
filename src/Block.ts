@@ -30,11 +30,7 @@ class Block {
 
   computeHash() {
     return SHA256(
-      this.index +
-        this.precedingHash +
-        this.timestamp +
-        JSON.stringify(this.data) +
-        this.nonce
+      this.index + this.precedingHash + JSON.stringify(this.data) + this.nonce
     ).toString();
   }
 
