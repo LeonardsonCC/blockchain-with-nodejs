@@ -4,7 +4,7 @@ I'm doing this project just to learn some concepts of BlockChain and Tests. So, 
 ## Objectives
 - [x] Blocks;
 - [x] BlockChain;
-- [ ] Wallets using public and secret keys;
 - [ ] Nodes work with each other correctly;
 - [ ] Mine blockchain to validate;
+- [ ] Wallets using public and secret keys;
 - [ ] Maybe learn about proof of stake;

@@ -1,4 +1,4 @@
-import SHA256 from "crypto-js/sha256";
+import crypto from "crypto";
 
 export interface BlockData {
   sender: string;
@@ -29,9 +29,16 @@ class Block {
   }
 
   computeHash() {
-    return SHA256(
-      this.index + this.precedingHash + JSON.stringify(this.data) + this.nonce
-    ).toString();
+    return crypto
+      .createHash("sha256")
+      .update(
+        this.index +
+          this.timestamp +
+          this.precedingHash +
+          JSON.stringify(this.data) +
+          this.nonce
+      )
+      .digest("hex");
   }
 
   proofOfWork(difficulty: number) {
