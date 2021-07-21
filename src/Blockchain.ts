@@ -1,15 +1,41 @@
+import { readFileSync, writeFileSync } from "fs";
+import { join } from "path";
 import Block, { BlockData } from "./Block";
+
+const filePath = join(__dirname, "../tmp/chain");
 
 class Blockchain {
   public ledger: Block[];
   public difficulty: number = 1;
+  private useStoredLedger: boolean = false;
 
-  constructor() {
-    this.ledger = [this.startGenesisBlock()];
+  constructor(useStoredLedger: boolean = false) {
+    this.useStoredLedger = useStoredLedger;
+    try {
+      if (!this.useStoredLedger) {
+        this.ledger = [this.startGenesisBlock()];
+      } else {
+        const oldLedger = JSON.parse(readFileSync(filePath).toString());
+        this.ledger = oldLedger.ledger.map((block: Block) => {
+          const newBlock = new Block(
+            block.index,
+            block.timestamp,
+            block.data,
+            block.precedingHash
+          );
+          newBlock.nonce = block.nonce;
+          return newBlock;
+        });
+        this.difficulty = this.difficulty;
+      }
+    } catch (error) {
+      this.ledger = [this.startGenesisBlock()];
+    }
+    this.saveChain();
   }
 
   startGenesisBlock() {
-    return new Block(1, new Date().getTime(), {
+    return new Block(0, new Date().getTime(), {
       sender: "Leonardson",
       receiver: "Leonardson",
       amount: 0,
@@ -26,6 +52,7 @@ class Blockchain {
     newBlock.precedingHash = this.obtainLatestBlock().hash;
     newBlock.proofOfWork(this.difficulty);
     this.ledger.push(newBlock);
+    if (this.checkChainValidity()) this.saveChain();
   }
 
   checkChainValidity() {
@@ -41,7 +68,14 @@ class Blockchain {
     return true;
   }
 
-  debug() {
+  saveChain() {
+    if (this.useStoredLedger) {
+      console.log("saving...");
+      writeFileSync(filePath, this.toString());
+    }
+  }
+
+  toString() {
     return JSON.stringify(this, null, 4);
   }
 }

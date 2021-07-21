@@ -55,5 +55,15 @@ describe("Blockchain test suite", function () {
     let latestBlock = ledger.obtainLatestBlock();
     expect(latestBlock.data.sender).toBe("Leonardson");
     expect(latestBlock.data.receiver).toBe("Leonardson");
+
+    const newBlock = {
+      sender: "Test 1",
+      receiver: "Test 2",
+      amount: 100,
+    };
+    ledger.addNewBlock(newBlock);
+    latestBlock = ledger.obtainLatestBlock();
+    expect(latestBlock.data.sender).toBe("Test 1");
+    expect(latestBlock.data.receiver).toBe("Test 2");
   });
 });

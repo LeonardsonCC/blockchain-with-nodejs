@@ -1,0 +1,18 @@
+{
+    "difficulty": 1,
+    "useStoredLedger": true,
+    "ledger": [
+        {
+            "index": 0,
+            "timestamp": 1626833449598,
+            "data": {
+                "sender": "Leonardson",
+                "receiver": "Leonardson",
+                "amount": 0
+            },
+            "precedingHash": "",
+            "nonce": 0,
+            "hash": "6acf9a65056dea901302f49732df03ef717f4a5c9a4bccf2a040374fbe9dcf4d"
+        }
+    ]
+}

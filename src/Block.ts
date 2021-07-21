@@ -7,12 +7,12 @@ export interface BlockData {
 }
 
 class Block {
-  private index: number;
+  public index: number;
   public timestamp: number;
   public data: BlockData;
   public precedingHash: string;
   public hash: string;
-  private nonce: number;
+  public nonce: number;
 
   constructor(
     index: number,
@@ -24,8 +24,8 @@ class Block {
     this.timestamp = timestamp;
     this.data = data;
     this.precedingHash = precedingHash;
-    this.hash = this.computeHash();
     this.nonce = 0;
+    this.hash = this.computeHash();
   }
 
   computeHash() {
