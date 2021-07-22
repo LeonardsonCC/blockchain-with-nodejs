@@ -30,9 +30,9 @@ class Node {
 
   connect(nodeAddress: string) {
     const [host, port] = nodeAddress.split(":");
-    this.socket = net.createConnection(Number(port), host, () =>
+    this.socket = net.createConnection(Number(port), host, () => {
       console.log(`Connect to ${host}:${port}`);
-    );
+    });
   }
 }
 
