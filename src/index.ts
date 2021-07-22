@@ -1,6 +1,7 @@
-import CryptoBlockchain from "./Blockchain";
+import Blockchain from "./Blockchain";
+import Node from "./Node";
 
-let coin = new CryptoBlockchain();
+let coin = new Blockchain();
 coin.addNewBlock({
   sender: "Iris Ljesnjanin",
   receiver: "Cosima Mielke",
@@ -12,6 +13,8 @@ coin.addNewBlock({
   amount: 100,
 });
 
-coin.ledger[0].data.amount = 999;
-console.log(coin.toString());
-console.log("Chain is valid: " + coin.checkChainValidity());
+const node = new Node(coin);
+
+process.argv.slice(2).forEach((otherPeerAddress) => {
+  node.connect(otherPeerAddress);
+});
