@@ -1,20 +1,17 @@
 import net from "net";
 import Blockchain from "./Blockchain";
-import dotenv from "dotenv";
-
-dotenv.config();
-
-const PORT = process.env.PORT;
 
 class Node {
   public nodes: Node[];
   public blockchain: Blockchain;
+  public port: number;
   public server?: net.Server;
   public socket?: net.Socket;
 
-  constructor(blockchain: Blockchain) {
+  constructor(blockchain: Blockchain, port: number) {
     this.nodes = [];
     this.blockchain = blockchain;
+    this.port = port;
     this.startServer();
   }
 
@@ -23,8 +20,8 @@ class Node {
       console.log("Someone connected");
     });
 
-    this.server.listen(PORT, () => {
-      console.log(`Listening to ${PORT}`);
+    this.server.listen(this.port, () => {
+      console.log(`Listening to ${this.port}`);
     });
   }
 
