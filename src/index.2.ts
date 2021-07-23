@@ -18,7 +18,7 @@ coin.addNewBlock({
   amount: 100,
 });
 
-const node = new Node(coin, PORT);
+const node = new Node(coin, 2829);
 
 process.argv.slice(2).forEach((otherPeerAddress) => {
   node.connect(otherPeerAddress).then((data) => console.log(data));
