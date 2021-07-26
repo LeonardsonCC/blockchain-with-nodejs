@@ -1,5 +1,5 @@
 import Blockchain from "./Blockchain";
-import Node from "./Node";
+import Node, { NodeConnection } from "./Node";
 import dotenv from "dotenv";
 
 dotenv.config();
@@ -21,5 +21,7 @@ coin.addNewBlock({
 const node = new Node(coin, PORT);
 
 process.argv.slice(2).forEach((otherPeerAddress) => {
-  node.connect(otherPeerAddress).then((data) => console.log(data));
+  node.connect(otherPeerAddress).then((connection) => {
+    node.discoverPeers(connection);
+  });
 });
