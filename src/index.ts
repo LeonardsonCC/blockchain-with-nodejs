@@ -18,10 +18,20 @@ coin.addNewBlock({
   amount: 100,
 });
 
-const node = new Node(coin, PORT);
-
-process.argv.slice(2).forEach((otherPeerAddress) => {
-  node.connect(otherPeerAddress).then((connection) => {
-    node.discoverPeers(connection);
+let node: Node;
+if (process.argv.length > 3) {
+  node = new Node(coin, Number(process.argv[2]));
+  process.argv.slice(3).forEach((otherPeerAddress) => {
+    node.connect(otherPeerAddress).then((connection) => {
+      node.discoverPeers(connection);
+    });
   });
-});
+} else {
+  node = new Node(coin, PORT);
+  process.argv.slice(2).forEach((otherPeerAddress) => {
+    node.connect(otherPeerAddress).then((connection) => {
+      node.discoverPeers(connection);
+    });
+  });
+}
+
