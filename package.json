@@ -5,6 +5,8 @@
   "license": "MIT",
   "scripts": {
     "start": "npm run build && node build/index.js",
+    "start:2": "npm run build && node build/index.js 2829 127.0.0.1:2828",
+    "start:3": "npm run build && node build/index.js 2830 127.0.0.1:2829",
     "start:dev": "nodemon",
     "build": "rimraf ./build && tsc",
     "test": "jest",
