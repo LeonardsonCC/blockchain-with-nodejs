@@ -42,6 +42,7 @@ class Node {
         ip: remoteAddress,
         socket: socket
       });
+      console.log("Connections", this.connections);
     }
 
     //console.log("Connections: ", this.connections);
@@ -75,12 +76,9 @@ class Node {
     });
   }
 
-  discoverPeers(connection: NodeConnection) {
-    console.log("Tryinh to discover :)", connection.ip);
-    if (this.connectionExists(connection)) {
-      const { socket } = connection;
-      socket.emit(NodeMessage.DISCOVER_PEERS);
-    }
+  discoverPeers(socket: net.Socket) {
+    console.log("Trying to discover :)");
+    socket.emit(NodeMessage.DISCOVER_PEERS);
   }
 
   connect(nodeAddress: string) {
@@ -88,9 +86,10 @@ class Node {
       nodeAddress += ":2828";
     }
     const [host, port] = nodeAddress.split(":");
-    return new Promise<NodeConnection>((resolve, reject) => {
+    return new Promise<net.Socket>((resolve, reject) => {
       const socket = net.createConnection(Number(port), host);
       this.initializeServer(socket, nodeAddress);
+      resolve(socket);
     });
   }
 
