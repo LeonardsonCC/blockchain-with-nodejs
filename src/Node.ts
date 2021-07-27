@@ -30,42 +30,35 @@ class Node {
   }
 
   initializeServer(socket: net.Socket, address?: string) {
+    if (!this.server) return;
+
     let remoteAddress = address ? address : socket.remoteAddress;
-  
+    let thisConnection: NodeConnection;
+
     if (remoteAddress && remoteAddress.substr(0, 7) == "::ffff:") {
       remoteAddress = remoteAddress.substr(7)
     }
     if (remoteAddress) {
       console.log(`IP ${remoteAddress} just connected`);
 
-      this.connections.push({
+      thisConnection = {
         ip: remoteAddress,
         socket: socket
-      });
-      console.log("Connections", this.connections);
+      };
+      this.connections.push(thisConnection);
     }
 
-    //console.log("Connections: ", this.connections);
+    socket.on("data", (data) => {
+      console.log("Receiving data...", data.toString());
+      const [event, params] = data.toString().split("|");
 
-    socket.on(NodeMessage.DISCOVER_PEERS, () => {
-      socket.emit(NodeMessage.DISCOVER_PEERS_RESULT, this.connections.map(connection => connection.ip));
-    });
-
-    socket.on(NodeMessage.DISCOVER_PEERS_RESULT, (newPeers: string[]) => {
-      console.log("Discovered: ", newPeers);
-      newPeers = newPeers.filter((peer) => {
-        for (const connection of this.connections) {
-          if (peer === connection.ip) return false;
+      if (event) {
+        switch (event) {
+          case NodeMessage.DISCOVER_PEERS:
+            this.discoverPeersHandler(socket);
+            break;
         }
-        return true;
-      });
-
-      newPeers.forEach((peer) => {
-        this.connect(peer)
-          .then((data) => {
-            console.log("Discovered with success: ", data);
-          })
-      })
+      }
     });
 
     socket.on("end", () => {
@@ -77,8 +70,10 @@ class Node {
   }
 
   discoverPeers(socket: net.Socket) {
-    console.log("Trying to discover :)");
-    socket.emit(NodeMessage.DISCOVER_PEERS);
+    socket.write(`${NodeMessage.DISCOVER_PEERS}`);
+  }
+  discoverPeersHandler(socket: net.Socket) {
+    socket.write(this.connections.map(conn => conn.ip).join(","));
   }
 
   connect(nodeAddress: string) {
@@ -89,7 +84,14 @@ class Node {
     return new Promise<net.Socket>((resolve, reject) => {
       const socket = net.createConnection(Number(port), host);
       this.initializeServer(socket, nodeAddress);
-      resolve(socket);
+
+      socket.on("connect", () => {
+        const newConnection = this.connections.filter(connection => connection.ip == nodeAddress);
+        if (newConnection.length > 0) {
+          resolve(newConnection[0].socket);
+        }
+        reject();
+      })
     });
   }
 
