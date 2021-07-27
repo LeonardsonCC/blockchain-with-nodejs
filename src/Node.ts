@@ -32,12 +32,8 @@ class Node {
   initializeServer(socket: net.Socket, address?: string) {
     if (!this.server) return;
 
-    let remoteAddress = address ? address : socket.remoteAddress;
+    const remoteAddress = this.getAddressIp(address, socket);
     let thisConnection: NodeConnection;
-
-    if (remoteAddress && remoteAddress.substr(0, 7) == "::ffff:") {
-      remoteAddress = remoteAddress.substr(7)
-    }
     if (remoteAddress) {
       console.log(`IP ${remoteAddress} just connected`);
 
@@ -50,12 +46,21 @@ class Node {
 
     socket.on("data", (data) => {
       console.log("Receiving data...", data.toString());
-      const [event, params] = data.toString().split("|");
+      const eventData = data.toString().split("|");
+      const event = eventData[0];
+      let params: any;
+
+      if (eventData.length > 1) {
+        params = JSON.parse(eventData[1]);
+      }
 
       if (event) {
         switch (event) {
           case NodeMessage.DISCOVER_PEERS:
             this.discoverPeersHandler(socket);
+            break;
+          case NodeMessage.DISCOVER_PEERS_RESULT:
+            this.discoverPeersResultHandler(params);
             break;
         }
       }
@@ -72,8 +77,21 @@ class Node {
   discoverPeers(socket: net.Socket) {
     socket.write(`${NodeMessage.DISCOVER_PEERS}`);
   }
+
   discoverPeersHandler(socket: net.Socket) {
-    socket.write(this.connections.map(conn => conn.ip).join(","));
+    const newConnecions = this.connections.filter(conn => conn.ip !== this.getAddressIp(undefined, socket)).map(conn => conn.ip)
+    const params = JSON.stringify(newConnecions);
+    socket.write(`${NodeMessage.DISCOVER_PEERS_RESULT}|${params}`);
+  }
+
+  discoverPeersResultHandler(addresses: string[]) {
+    addresses.forEach((address) => {
+      this.connect(address)
+        .then(() => {
+          console.log(`Connected to ${address}!`);
+        })
+
+    });
   }
 
   connect(nodeAddress: string) {
@@ -99,6 +117,15 @@ class Node {
     return this.connections.filter(item => {
       return item.ip === connection.ip;
     }).length > 0;
+  }
+
+  getAddressIp(address: string|undefined, socket: net.Socket) {
+    let remoteAddress = address ? address : socket.remoteAddress;
+
+    if (remoteAddress && remoteAddress.substr(0, 7) == "::ffff:") {
+      remoteAddress = remoteAddress.substr(7)
+    }
+    return remoteAddress;
   }
 }
 
