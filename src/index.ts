@@ -23,14 +23,20 @@ if (process.argv.length > 3) {
   node = new Node(coin, Number(process.argv[2]));
   process.argv.slice(3).forEach((otherPeerAddress) => {
     node.connect(otherPeerAddress).then((connection) => {
-      node.discoverPeers(connection);
+      node.connections.forEach((connection) => {
+        console.log(connection.ip);
+        node.discoverPeers(connection.socket);
+      })
     });
   });
 } else {
   node = new Node(coin, PORT);
   process.argv.slice(2).forEach((otherPeerAddress) => {
     node.connect(otherPeerAddress).then((connection) => {
-      node.discoverPeers(connection);
+      node.connections.forEach((connection) => {
+        console.log(connection.ip);
+        node.discoverPeers(connection.socket);
+      })
     });
   });
 }
