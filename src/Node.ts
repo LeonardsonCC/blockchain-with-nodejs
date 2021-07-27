@@ -85,7 +85,9 @@ class Node {
   }
 
   discoverPeersResultHandler(addresses: string[]) {
-    addresses.forEach((address) => {
+    addresses.filter((address) => {
+      return !(this.connections.filter(connection => connection.ip === address).length > 0)
+    }).forEach((address) => {
       this.connect(address)
         .then(() => {
           console.log(`Connected to ${address}!`);
