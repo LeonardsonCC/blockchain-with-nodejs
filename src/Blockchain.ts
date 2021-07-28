@@ -59,6 +59,7 @@ class Blockchain {
       const precedingBlock = ledger[i - 1];
 
       if (currentBlock.hash !== currentBlock.computeHash()) {
+        console.log("COMPARING: ", currentBlock, precedingBlock);
         return false;
       }
       if (currentBlock.precedingHash !== precedingBlock.hash) return false;
@@ -77,12 +78,11 @@ class Blockchain {
   }
 
   replaceChain(newLedger: Block[]) {
-    if (this.checkChainValidity(newLedger) && this.isChainLonger(newLedger)) {
-      this.ledger = newLedger;
-      this.saveChain();
-    } else {
-      throw new Error("Error: Invalid chain");
-    }
+    if (!this.checkChainValidity(newLedger)) throw new Error("Error: Invalid chain");
+    if (!this.isChainLonger(newLedger)) throw new Error("Error: Chain is not longer")
+
+    this.ledger = newLedger;
+    this.saveChain();
   }
 
   toString() {

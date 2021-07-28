@@ -1,5 +1,6 @@
 import net from "net";
 import Blockchain from "./Blockchain";
+import Block from "./Block";
 import NodeMessage from "./NodeMessages";
 
 export interface NodeConnection {
@@ -62,6 +63,9 @@ class Node {
           case NodeMessage.DISCOVER_PEERS_RESULT:
             this.discoverPeersResultHandler(params);
             break;
+          case NodeMessage.COMPARE_LEDGER:
+            this.compareLedgerHandler(params);
+            break;
         }
       }
     });
@@ -72,6 +76,20 @@ class Node {
         return currentConnection.ip !== remoteAddress && currentConnection.socket !== socket
       });
     });
+  }
+
+  compareLedger(socket: net.Socket) {
+    socket.write(`${NodeMessage.COMPARE_LEDGER}|${this.blockchain.toString()}`);
+  }
+
+  compareLedgerHandler(ledger: Block[]) {
+    try {
+      console.log("Antes de tentar substituir");
+      this.blockchain.replaceChain(ledger);
+      console.log("Substituiu chain com sucesso(?)");
+    } catch (err) {
+      console.log(err.message);
+    }
   }
 
   discoverPeers(socket: net.Socket) {

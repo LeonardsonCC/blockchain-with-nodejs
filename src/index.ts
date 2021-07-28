@@ -26,6 +26,7 @@ if (process.argv.length > 3) {
       node.connections.forEach((connection) => {
         console.log(connection.ip);
         node.discoverPeers(connection.socket);
+        node.compareLedger(connection.socket);
       })
     });
   });
@@ -36,6 +37,7 @@ if (process.argv.length > 3) {
       node.connections.forEach((connection) => {
         console.log(connection.ip);
         node.discoverPeers(connection.socket);
+        node.compareLedger(connection.socket);
       })
     });
   });
