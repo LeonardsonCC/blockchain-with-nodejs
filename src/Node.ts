@@ -14,6 +14,7 @@ class Node {
   public port: number;
   public isRunning: boolean;
   public server?: net.Server;
+  private currentData?: string|Buffer;
 
   constructor(blockchain: Blockchain, port: number) {
     this.blockchain = blockchain;
@@ -46,6 +47,14 @@ class Node {
     }
 
     socket.on("data", (data) => {
+      const dataString = data.toString();
+      if (dataString.includes("{{{")) {
+        console.log("Message started");
+      }
+      if (dataString.includes("}}}")) {
+        console.log("Message ended");
+      }
+
       console.log("Receiving data...", data.toString());
       const eventData = data.toString().split("|");
       const event = eventData[0];
@@ -79,7 +88,8 @@ class Node {
   }
 
   compareLedger(socket: net.Socket) {
-    socket.write(`${NodeMessage.COMPARE_LEDGER}|${this.blockchain.toString()}`);
+    console.log("Nice: ", socket.writableLength, this.blockchain.toString());
+    socket.write(`{{{${NodeMessage.COMPARE_LEDGER}|${this.blockchain.toString()}}}}`);
   }
 
   compareLedgerHandler(ledger: Block[]) {
@@ -93,13 +103,13 @@ class Node {
   }
 
   discoverPeers(socket: net.Socket) {
-    socket.write(`${NodeMessage.DISCOVER_PEERS}`);
+    socket.write(`{{{${NodeMessage.DISCOVER_PEERS}}}}`);
   }
 
   discoverPeersHandler(socket: net.Socket) {
     const newConnecions = this.connections.filter(conn => conn.ip !== this.getAddressIp(undefined, socket)).map(conn => conn.ip)
     const params = JSON.stringify(newConnecions);
-    socket.write(`${NodeMessage.DISCOVER_PEERS_RESULT}|${params}`);
+    socket.write(`{{{${NodeMessage.DISCOVER_PEERS_RESULT}|${params}}}}`);
   }
 
   discoverPeersResultHandler(addresses: string[]) {
