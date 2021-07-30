@@ -1,0 +1,12 @@
+# ./.tmuxinator.yml
+
+name: blockchain-with-nodejs
+root: .
+windows:
+  - editor: nvim
+  - sockets: 
+      layout: even-vertical
+      panes:
+        - npm run start
+        - npm run start -- 2829 127.0.0.1:2828
+  - tests: npm run test
