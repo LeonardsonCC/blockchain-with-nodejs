@@ -17,6 +17,11 @@ coin.addNewBlock({
   receiver: "Ricardo Gimenes",
   amount: 100,
 });
+coin.addNewBlock({
+  sender: "Nice",
+  receiver: "Show de bola",
+  amount: 1,
+});
 
 let node: Node;
 if (process.argv.length > 3) {

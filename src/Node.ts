@@ -14,13 +14,14 @@ class Node {
   public port: number;
   public isRunning: boolean;
   public server?: net.Server;
-  private currentData?: string|Buffer;
+  private currentData: string;
 
   constructor(blockchain: Blockchain, port: number) {
     this.blockchain = blockchain;
     this.connections = [];
     this.port = port;
     this.isRunning = false;
+    this.currentData = "";
     this.startServer();
   }
 
@@ -47,16 +48,14 @@ class Node {
     }
 
     socket.on("data", (data) => {
-      const dataString = data.toString();
-      if (dataString.includes("{{{")) {
-        console.log("Message started");
+      this.currentData += data.toString();
+      if (!(this.currentData.includes("{{{") && this.currentData.includes("}}}"))) {
+        return;
       }
-      if (dataString.includes("}}}")) {
-        console.log("Message ended");
-      }
+      const message = this.currentData.slice(this.currentData.indexOf("{{{"), this.currentData.indexOf("}}}"));
 
-      console.log("Receiving data...", data.toString());
-      const eventData = data.toString().split("|");
+      console.log("Receiving data...", message);
+      const eventData = message.split("|");
       const event = eventData[0];
       let params: any;
 
