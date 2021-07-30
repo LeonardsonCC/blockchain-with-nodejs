@@ -48,34 +48,7 @@ class Node {
     }
 
     socket.on("data", (data) => {
-      this.currentData += data.toString();
-      if (!(this.currentData.includes("{{{") && this.currentData.includes("}}}"))) {
-        return;
-      }
-      const message = this.currentData.slice(this.currentData.indexOf("{{{"), this.currentData.indexOf("}}}"));
-
-      console.log("Receiving data...", message);
-      const eventData = message.split("|");
-      const event = eventData[0];
-      let params: any;
-
-      if (eventData.length > 1) {
-        params = JSON.parse(eventData[1]);
-      }
-
-      if (event) {
-        switch (event) {
-          case NodeMessage.DISCOVER_PEERS:
-            this.discoverPeersHandler(socket);
-            break;
-          case NodeMessage.DISCOVER_PEERS_RESULT:
-            this.discoverPeersResultHandler(params);
-            break;
-          case NodeMessage.COMPARE_LEDGER:
-            this.compareLedgerHandler(params);
-            break;
-        }
-      }
+      this.processData(data.toString(), socket);
     });
 
     socket.on("end", () => {
@@ -86,9 +59,42 @@ class Node {
     });
   }
 
+  processData(data: string, socket: net.Socket) {
+    this.currentData += data;
+    if (!(this.currentData.includes("$$"))) {
+      return;
+    }
+    const message = this.currentData.slice(0, this.currentData.indexOf("$$"));
+    this.currentData = this.currentData.substr(this.currentData.indexOf("$$") + 2);
+
+    console.log("Message: ", message);
+    const eventData = message.split("|");
+    const event = eventData[0];
+    let params: any;
+
+    if (eventData.length > 1) {
+      params = JSON.parse(eventData[1]);
+    }
+
+    if (event) {
+      switch (event) {
+        case NodeMessage.DISCOVER_PEERS:
+          this.discoverPeersHandler(socket);
+          break;
+        case NodeMessage.DISCOVER_PEERS_RESULT:
+          this.discoverPeersResultHandler(params);
+          break;
+        case NodeMessage.COMPARE_LEDGER:
+          this.compareLedgerHandler(params);
+          break;
+      }
+    }
+
+    if (this.currentData.includes("$$")) this.processData(data, socket);
+  }
+
   compareLedger(socket: net.Socket) {
-    console.log("Nice: ", socket.writableLength, this.blockchain.toString());
-    socket.write(`{{{${NodeMessage.COMPARE_LEDGER}|${this.blockchain.toString()}}}}`);
+    socket.write(`${NodeMessage.COMPARE_LEDGER}|${this.blockchain.toString()}$$`);
   }
 
   compareLedgerHandler(ledger: Block[]) {
@@ -102,13 +108,13 @@ class Node {
   }
 
   discoverPeers(socket: net.Socket) {
-    socket.write(`{{{${NodeMessage.DISCOVER_PEERS}}}}`);
+    socket.write(`${NodeMessage.DISCOVER_PEERS}$$`);
   }
 
   discoverPeersHandler(socket: net.Socket) {
     const newConnecions = this.connections.filter(conn => conn.ip !== this.getAddressIp(undefined, socket)).map(conn => conn.ip)
     const params = JSON.stringify(newConnecions);
-    socket.write(`{{{${NodeMessage.DISCOVER_PEERS_RESULT}|${params}}}}`);
+    socket.write(`${NodeMessage.DISCOVER_PEERS_RESULT}|${params}$$`);
   }
 
   discoverPeersResultHandler(addresses: string[]) {
@@ -148,7 +154,7 @@ class Node {
     }).length > 0;
   }
 
-  getAddressIp(address: string|undefined, socket: net.Socket) {
+  getAddressIp(address: string | undefined, socket: net.Socket) {
     let remoteAddress = address ? address : socket.remoteAddress;
 
     if (remoteAddress && remoteAddress.substr(0, 7) == "::ffff:") {
