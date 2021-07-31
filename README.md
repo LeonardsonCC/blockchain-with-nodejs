@@ -1,6 +1,8 @@
 # Blockchain concept in TypeScript
 I'm doing this project just to learn some concepts of BlockChain and Tests. So, don't expect anything brilliant from here :)
 
+![Tests](https://github.com/LeonardsonCC/blockchain-with-nodejs/actions/workflows/node.js.yml/badge.svg)
+
 ## Objectives
 - [x] Blocks;
 - [x] BlockChain;
