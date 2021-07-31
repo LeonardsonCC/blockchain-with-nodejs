@@ -67,9 +67,9 @@ class Node {
     const message = this.currentData.slice(0, this.currentData.indexOf("$$"));
     this.currentData = this.currentData.substr(this.currentData.indexOf("$$") + 2);
 
-    console.log("Message: ", message);
     const eventData = message.split("|");
     const event = eventData[0];
+    console.log("New event: ", event);
     let params: any;
 
     if (eventData.length > 1) {
@@ -88,7 +88,7 @@ class Node {
           this.compareLedgerHandler(params, socket);
           break;
         case NodeMessage.COMPARE_LEDGER_RESULT:
-          this.compareLedgerResultHandler(params);
+          this.compareLedgerResultHandler(params, socket);
           break;
       }
     }
@@ -117,7 +117,7 @@ class Node {
     socket.write(`${NodeMessage.COMPARE_LEDGER_RESULT}|${JSON.stringify(param)}$$`);
   }
   
-  compareLedgerResultHandler(result: {success: boolean, ledger?: Block[]}) {
+  compareLedgerResultHandler(result: {success: boolean, ledger?: Block[]}, socket: net.Socket) {
     if (result.success) {
       console.log("Ledger replaced");
     } else {
@@ -127,6 +127,9 @@ class Node {
           const blockchain = new Blockchain();
           blockchain.ledger = blockchain.restoreBlocks(result.ledger);
           this.blockchain.replaceChain(blockchain.ledger);
+          this.connections
+            .filter(connection => connection.socket !== socket)
+            .forEach(connection => this.compareLedger(connection.socket));
         } catch(err) {
           console.log(err);
         }
