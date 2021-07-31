@@ -17,13 +17,7 @@ class Blockchain {
         this.ledger = [this.startGenesisBlock()];
       } else {
         const oldLedger = JSON.parse(readFileSync(filePath).toString());
-        this.ledger = oldLedger.ledger.map((block: Block) => {
-          const newBlock = Object.create(
-            Block.prototype,
-            Object.getOwnPropertyDescriptors(block)
-          );
-          return newBlock;
-        });
+        this.ledger = this.restoreBlocks(oldLedger.ledger);
       }
     } catch (error) {
       this.ledger = [this.startGenesisBlock()];
@@ -59,7 +53,6 @@ class Blockchain {
       const precedingBlock = ledger[i - 1];
 
       if (currentBlock.hash !== currentBlock.computeHash()) {
-        console.log("COMPARING: ", currentBlock, precedingBlock);
         return false;
       }
       if (currentBlock.precedingHash !== precedingBlock.hash) return false;
@@ -78,6 +71,7 @@ class Blockchain {
   }
 
   replaceChain(newLedger: Block[]) {
+    if (newLedger === this.ledger) return;
     if (!this.checkChainValidity(newLedger)) throw new Error("Error: Invalid chain");
     if (!this.isChainLonger(newLedger)) throw new Error("Error: Chain is not longer")
 
@@ -91,6 +85,16 @@ class Blockchain {
       null,
       4
     );
+  }
+
+  restoreBlocks(blocks: Block[]) {
+    return blocks.map((block: Block) => {
+      const newBlock = Object.create(
+        Block.prototype,
+        Object.getOwnPropertyDescriptors(block)
+      );
+      return newBlock;
+    });
   }
 }
 
