@@ -4,9 +4,9 @@ I'm doing this project just to learn some concepts of BlockChain and Tests. So, 
 ## Objectives
 - [x] Blocks;
 - [x] BlockChain;
-- [ ] Make the protocol works;
-- [ ] Nodes discover other nodes on connect;
-- [ ] Nodes validate and replace ledgers;
+- [X] Make the protocol works;
+- [X] Nodes discover other nodes on connect;
+- [X] Nodes validate and replace ledgers;
 - [ ] Mine blockchain to create new transaction;
 - [ ] Wallets using public and secret keys;
 - [ ] Maybe learn about proof of stake;
