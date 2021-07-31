@@ -1,7 +1,7 @@
 import net from "net";
 import Blockchain from "./Blockchain";
-import Block from "./Block";
 import NodeMessage from "./NodeMessages";
+import Block from "./Block";
 
 export interface NodeConnection {
   ip: string;
@@ -85,7 +85,10 @@ class Node {
           this.discoverPeersResultHandler(params);
           break;
         case NodeMessage.COMPARE_LEDGER:
-          this.compareLedgerHandler(params);
+          this.compareLedgerHandler(params, socket);
+          break;
+        case NodeMessage.COMPARE_LEDGER_RESULT:
+          this.compareLedgerResultHandler(params);
           break;
       }
     }
@@ -97,13 +100,37 @@ class Node {
     socket.write(`${NodeMessage.COMPARE_LEDGER}|${this.blockchain.toString()}$$`);
   }
 
-  compareLedgerHandler(ledger: Block[]) {
+  compareLedgerHandler(ledger: Blockchain, socket: net.Socket) {
     try {
-      console.log("Antes de tentar substituir");
-      this.blockchain.replaceChain(ledger);
-      console.log("Substituiu chain com sucesso(?)");
+      const blockchain = new Blockchain();
+      blockchain.ledger = blockchain.restoreBlocks(ledger.ledger);
+      this.blockchain.replaceChain(blockchain.ledger);
+      console.log("Substituiu chain com sucesso");
+      this.compareLedgerResult(socket, { success: true });
     } catch (err) {
       console.log(err.message);
+      this.compareLedgerResult(socket, { success: false, ledger: this.blockchain.ledger });
+    }
+  }
+
+  compareLedgerResult(socket: net.Socket, param: {success: boolean, ledger?: Block[]}) {
+    socket.write(`${NodeMessage.COMPARE_LEDGER_RESULT}|${JSON.stringify(param)}$$`);
+  }
+  
+  compareLedgerResultHandler(result: {success: boolean, ledger?: Block[]}) {
+    if (result.success) {
+      console.log("Ledger replaced");
+    } else {
+      console.log("replacing this ledger");
+      if (result.ledger) {
+        try {
+          const blockchain = new Blockchain();
+          blockchain.ledger = blockchain.restoreBlocks(result.ledger);
+          this.blockchain.replaceChain(blockchain.ledger);
+        } catch(err) {
+          console.log(err);
+        }
+      }
     }
   }
 
@@ -113,8 +140,7 @@ class Node {
 
   discoverPeersHandler(socket: net.Socket) {
     const newConnecions = this.connections.filter(conn => conn.ip !== this.getAddressIp(undefined, socket)).map(conn => conn.ip)
-    const params = JSON.stringify(newConnecions);
-    socket.write(`${NodeMessage.DISCOVER_PEERS_RESULT}|${params}$$`);
+    socket.write(`${NodeMessage.DISCOVER_PEERS_RESULT}|${JSON.stringify(newConnecions)}$$`);
   }
 
   discoverPeersResultHandler(addresses: string[]) {
