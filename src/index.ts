@@ -6,7 +6,7 @@ dotenv.config();
 const PORT = Number(process.env.PORT);
 if (!PORT) throw new Error("Not specified port");
 
-let coin = new Blockchain();
+let coin = new Blockchain(true);
 coin.addNewBlock({
   sender: "Iris Ljesnjanin",
   receiver: "Cosima Mielke",
